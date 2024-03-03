@@ -6,6 +6,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -17,6 +18,11 @@ func init() {
 }
 
 func main() {
+	var (
+		perfix string = "00:01:49.944" // 片头时长
+		suffix string = "00:02:01.100" // 片尾时长
+	)
+
 	folderPath := "/Users/zen/Github/RemoveIntroOutro" // 例如： "C:/Users/username/Documents"
 	extension := ".mp4"                                // 例如： ".txt"
 
@@ -27,13 +33,17 @@ func main() {
 	}
 
 	for _, file := range files {
-		mediainfo.GetTime(file)
-		//time, err := mediainfo.GetTime(file)
-		//if err != nil {
-		//	return
-		//}
-		//prefix:=""
-		//suffix:=""
+		newFile := strings.ReplaceAll(file, ".mp4", "_trim.mp4")
+		t, err := mediainfo.GetTime(file)
+		if err != nil {
+			return
+		}
+		//fmt.Println(t)
+		ss := perfix
+		to := mediainfo.TimeSub(t, suffix)
+		cmd := exec.Command("ffmpeg", "-i", file, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-ss", ss, "-to", to, newFile)
+		slog.Info("cmd", "cmd", cmd.String())
+		cmd.Run()
 	}
 }
 

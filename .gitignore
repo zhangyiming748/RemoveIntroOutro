@@ -4,3 +4,5 @@ vendor
 *.log
 *.json
 *.mp4
+*.part
+*.ytdl
