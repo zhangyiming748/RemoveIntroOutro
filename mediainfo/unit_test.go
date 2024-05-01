@@ -21,3 +21,9 @@ func TestTimeSub(t *testing.T) {
 	ret := TimeSub(timeStr1, timeStr2)
 	t.Log(ret)
 }
+
+// go test -v -run  TestGetCodec
+func TestGetCodec(t *testing.T) {
+	codec, width, height := GetCodec("/mnt/e/video/Straplez/title1/Sexy lesbians in black nylon catsuits fuck with a big dildo [64d662238e2a4].mp4")
+	t.Logf("codec: %v, width: %v, height: %v", codec, width, height)
+}

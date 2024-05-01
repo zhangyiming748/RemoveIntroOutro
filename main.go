@@ -19,12 +19,12 @@ func init() {
 
 func main() {
 	var (
-		perfix string = "00:01:49.944" // 片头时长
-		suffix string = "00:02:01.100" // 片尾时长
+		perfix string = "00:00:25.558" // 片头时长
+		suffix string = "00:00:00.000" // 片尾时长
 	)
 
-	folderPath := "/Users/zen/Github/RemoveIntroOutro" // 例如： "C:/Users/username/Documents"
-	extension := ".mp4"                                // 例如： ".txt"
+	folderPath := "/mnt/e/video/Straplez/title1" // 例如： "C:/Users/username/Documents"
+	extension := ".mp4"                          // 例如： ".txt"
 
 	files, err := getFilesWithExtension(folderPath, extension)
 	if err != nil {
@@ -41,9 +41,17 @@ func main() {
 		//fmt.Println(t)
 		ss := perfix
 		to := mediainfo.TimeSub(t, suffix)
-		cmd := exec.Command("ffmpeg", "-i", file, "-c:v", "copy", "-c:a", "copy", "-ac", "1", "-ss", ss, "-to", to, newFile)
+		_, width, height := mediainfo.GetCodec(file)
+		crf := mediainfo.GetCrfForVP9(width, height)
+		slog.Info("获取到的视频信息", slog.String("宽", width), slog.String("高", height), slog.String("crf", crf))
+		cmd := exec.Command("ffmpeg", "-i", file, "-c:v", "libvpx-vp9", "-crf", crf, "-c:a", "libvorbis", "-ac", "1", "-ss", ss, "-to", to, newFile)
 		slog.Info("cmd", "cmd", cmd.String())
-		cmd.Run()
+		err = cmd.Run()
+		if err != nil {
+			return
+		} else {
+			os.Remove(file)
+		}
 	}
 }
 
